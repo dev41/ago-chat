@@ -36,6 +36,8 @@ class Server
             next();
         });
 
+        await ConnectionService.resetConnections();
+
         this.app.get('/test_get', async (req, res) => {
             res.send('test_get_response');
         });
@@ -47,8 +49,6 @@ class Server
         });
 
         let io = this.socket;
-
-        await ConnectionService.resetConnections();
 
         this.socket.on('connection', (socket) => {
 

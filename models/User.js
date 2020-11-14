@@ -62,7 +62,7 @@ class User extends Model
             return [];
         }
 
-        return await this.qb
+        let data = await this.qb
             .select([
                 'uc.user_id as user_id',
                 'uc.chat_id as chat_id',
@@ -72,11 +72,12 @@ class User extends Model
                 'u.last_name as last_name',
                 'u.email as email',
                 'u.role as role',
+                'u.public_id as public_id',
                 'u.phone as phoneNumber',
-                `(SELECT _o.logo FROM organisation _o
+                `(SELECT CONCAT(_o.id, ',', COALESCE(_o.logo, '')) FROM organisation _o
                     INNER JOIN user_organisation _uo ON _uo.organisation_id = _o.id
                     WHERE _uo.user_id = u.id
-                    LIMIT 1) as org_logo`,
+                    LIMIT 1) as org_data`,
                 'v.logo as vol_logo',
                 // `IF (u.role = 2,
                 //     IF(org_logo, concat('${process.env.AWS_RESOURCE_BASE_PATH}/images/logo/organisation/', org_logo), null),
@@ -90,6 +91,18 @@ class User extends Model
             .where_in('uc.chat_id', chatIds)
             .get();
 
+        if (data.length) {
+            data.forEach(function (u) {
+                if (u.org_data) {
+                    u.org_data = u.org_data.split(',');
+
+                    u.org_id = parseInt(u.org_data[0]);
+                    u.org_logo = u.org_data[1];
+                }
+            });
+        }
+
+        return data;
     }
 
     async getUnreadMessages(userId) {
