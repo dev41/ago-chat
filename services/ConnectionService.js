@@ -24,7 +24,7 @@ class ConnectionService
             let interlocutors = await userModel.getOnlineInterlocutors(userId);
 
             interlocutors.forEach(function (interlocutor) {
-                io.to(interlocutor.socket_id).emit(SocketChatEvents.USER_ONLINE, {id: userId});
+                io.to(interlocutor.socket_id).emit(SocketChatEvents.EMITTER.USER_ONLINE, {id: userId});
             });
         } else {
             console.error(`Socket connection failed, for user Id ${userId}.`);
@@ -48,7 +48,7 @@ class ConnectionService
             let interlocutors = await userModel.getOnlineInterlocutors(user.id);
 
             interlocutors.forEach(function (interlocutor) {
-                io.to(interlocutor.socket_id).emit(SocketChatEvents.USER_OFFLINE, {id: user.id});
+                io.to(interlocutor.socket_id).emit(SocketChatEvents.EMITTER.USER_OFFLINE, {id: user.id});
             });
         }
     }

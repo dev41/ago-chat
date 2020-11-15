@@ -2,6 +2,7 @@ let userModel = new (require('../models/User'))();
 let chatModel = new (require('../models/Chat'))();
 let wsUserModel = new (require('../models/WSUserConnection'))();
 let messageModel = new (require('../models/Message'))();
+let SocketChatEvents = require('../utils/SocketChatEvents');
 // let BaseModel = require('../models/BaseModel');
 
 let UserService = require('./UserService');
@@ -136,6 +137,40 @@ class ChatService
 
     }
 
+    static async closeChat(chatId, io)
+    {
+        let connections = await wsUserModel.getChatConnections(chatId);
+
+        await chatModel.closeChat(chatId);
+
+        if (!connections.length) {
+            return;
+        }
+
+        connections.forEach(function (connection) {
+            io.to(connection.socket_id).emit(SocketChatEvents.EMITTER.CHAT_CLOSED, {id: chatId});
+        });
+    }
+
+    static async setChatTitle(chatId, title, io, socket)
+    {
+        let connections = await wsUserModel.getChatConnections(chatId, null, [socket.id]);
+
+        await chatModel.setChatTitle(chatId, title);
+
+        if (!connections.length) {
+            return;
+        }
+
+        connections.forEach(function (connection) {
+            io.to(connection.socket_id).emit(SocketChatEvents.EMITTER.CHAT_TITLE_CHANGED,
+                {
+                    id: chatId,
+                    title,
+                });
+        });
+    }
+
     static async sendAddedToChatInfo(chatId, fromUserId, io)
     {
         let connections = await wsUserModel.getChatConnections(chatId);
@@ -166,7 +201,6 @@ class ChatService
 
             connectionsByUserId[toUserId].forEach(function (connection) {
                 io.to(connection.socket_id).emit('addedToChat', chatAndUsers[toUserId]);
-                // UserService.emitUpdateUserState(connection.user_id, io, connection.socket_id);
             });
         }
     }

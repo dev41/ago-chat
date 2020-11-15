@@ -51,6 +51,17 @@ class Chat extends Model
         return await this.qb.update('chat_message', {status: 2}, {id: ids});
     }
 
+    async closeChat(chatId)
+    {
+        this.qb
+            .delete(this.getTableName(), {id: chatId});
+    }
+
+    async setChatTitle(id, title)
+    {
+        this.update({title}, {id});
+    }
+
     async getOnlineUsers(chatId, exceptUserIds)
     {
         let query = this.qb
