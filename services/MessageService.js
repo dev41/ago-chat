@@ -1,5 +1,5 @@
 let wsUserConnection = new (require('../models/WSUserConnection'))();
-let messageModel = new (require('../models/Message'))();
+let Message = require('../models/Message');
 
 let UserService = require('./UserService');
 
@@ -9,6 +9,8 @@ class MessageService
     {
       let connections = await wsUserConnection.getChatConnections(chatId, null, null);
 
+      await Message.I.setMessageType(messageId, type);
+
       connections.forEach(function (connection) {
         io.to(connection.socket_id).emit('changeMessageStatus', {
           type: type,
@@ -16,6 +18,10 @@ class MessageService
         });
         UserService.emitUpdateUserState(connection.user_id, io, connection.socket_id);
       });
+    }
+
+    static async deleteMessage(chatId, messageId, io) {
+        await MessageService.changeMessageType(chatId, messageId, Message.TYPE.DELETED, io);
     }
 
     static async sendMessage(io, data, expectSocketId)
@@ -35,9 +41,9 @@ class MessageService
             message.created_at = new Date();
         }
 
-        let newMessage = await messageModel.insert(message);
+        let newMessage = await Message.I.insert(message);
 
-        let formatMessageData = await messageModel.formatReceivedMessage(newMessage.id);
+        let formatMessageData = await Message.I.formatReceivedMessage(newMessage.id);
 
         connections.forEach(function (connection) {
             io.to(connection.socket_id).emit('receivedMessage', formatMessageData);

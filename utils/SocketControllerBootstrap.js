@@ -1,16 +1,16 @@
 'use strict';
 
-let ConnectionController = require('../controllers/ConnectionController');
-let ChatController = require('../controllers/ChatController');
+const controllers = [
+    require('../controllers/ConnectionController'),
+    require('../controllers/ChatController'),
+    require('../controllers/MessageController'),
+];
 
 class SocketControllerBootstrap
 {
     static bootstrap(io, socket)
     {
-        [
-            ConnectionController,
-            ChatController
-        ].forEach(function (c) {
+        controllers.forEach(function (c) {
             let actions = SocketControllerBootstrap._getActions(c);
 
             // each action run as socket event that can call action's function

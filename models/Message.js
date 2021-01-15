@@ -104,6 +104,8 @@ class Message extends Model
 
 }
 
+Message.I = new Message();
+
 Message.STATUS = {
     SEND: 0,
     CREATED: 1,
@@ -112,6 +114,7 @@ Message.STATUS = {
 
 Message.TYPE = {
     TEXT: 1,
+    DELETED: 10,
 };
 
 module.exports = Message;
