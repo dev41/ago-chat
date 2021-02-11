@@ -14,6 +14,8 @@ SocketChatEvents.EMITTER = {
     CHAT_LIST_RESPONSE: 'chatListResponse',
     GET_CHAT_MESSAGES_RESPONSE: 'getChatMessagesResponse',
     CHAT_TITLE_CHANGED: 'chatTitleChanged',
+    MESSAGE_CREATED: 'messageCreated',
+    CHAT_IS_READ: 'chatIsRead',
 };
 
 SocketChatEvents.SUBSCRIBER = {

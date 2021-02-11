@@ -77,7 +77,7 @@ class ChatService
         if (connections.length > 0) {
             connections.forEach(function (connection) {
                 UserService.emitUpdateUserState(connection.user_id, io, connection.socket_id);
-                io.to(connection.socket_id).emit('chatIsRead', {chatId: chatId});
+                io.to(connection.socket_id).emit(SocketChatEvents.EMITTER.CHAT_IS_READ, {chatId: chatId});
             });
         }
     }

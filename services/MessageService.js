@@ -2,6 +2,7 @@ let wsUserConnection = new (require('../models/WSUserConnection'))();
 let Message = require('../models/Message');
 
 let UserService = require('./UserService');
+let SocketChatEvents = require('../utils/SocketChatEvents');
 
 class MessageService
 {
@@ -42,8 +43,9 @@ class MessageService
         }
 
         let newMessage = await Message.I.insert(message);
-
         let formatMessageData = await Message.I.formatReceivedMessage(newMessage.id);
+
+        io.to(expectSocketId).emit(SocketChatEvents.EMITTER.MESSAGE_CREATED, formatMessageData);
 
         connections.forEach(function (connection) {
             io.to(connection.socket_id).emit('receivedMessage', formatMessageData);

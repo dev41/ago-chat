@@ -3,6 +3,7 @@
 let ChatService = require('../services/ChatService');
 let MessageService = require('../services/MessageService');
 let SocketChatEvents = require('../utils/SocketChatEvents');
+let Message = require('../models/Message');
 
 class ChatController
 {
@@ -17,10 +18,12 @@ class ChatController
         let chatId = data.chatId,
             userId = data.userId;
 
-        let messages = await ChatService.readChatMessages(chatId, userId, socket.id, io);
+        let messages = await ChatService.readChatMessages(chatId, userId, socket.id, io),
+            unreadMessages = await Message.I.getUnreadMessagesByChatIdAndUserId(null, userId);
 
         socket.emit(SocketChatEvents.EMITTER.GET_CHAT_MESSAGES_RESPONSE, {
-            messages: messages,
+            messages,
+            unreadMessages,
         });
 
         // await UserService.emitUpdateUserState(userId, io, socket.id);

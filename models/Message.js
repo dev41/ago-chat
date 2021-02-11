@@ -82,16 +82,24 @@ class Message extends Model
 
     async getUnreadMessagesByChatIdAndUserId(chatId, userId)
     {
-        let result = await this.qb
+        let builder = this.qb
             .select([
                 'count(m.id) as count',
             ], false)
             .join('chat c', 'c.id = m.chat_id')
             .where({
-                'c.id': chatId,
                 'm.user_id <>': userId,
                 'm.status <>': Message.STATUS.SEEN,
-            })
+            });
+
+        if (chatId) {
+            builder
+                .where({
+                'c.id': chatId,
+            });
+        }
+
+        let result = await builder
             .get('chat_message m');
 
 
